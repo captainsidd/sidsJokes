@@ -5,6 +5,14 @@ var app = express();
 var bodyParser = require('body-parser');
 var methodOverride = require('method-override');
 var CronJob = require('cron').CronJob;
+var Twitter = require('twitter');
+
+var client = new Twitter({
+  consumer_key: process.env.TWITTER_CONSUMER_KEY,
+  consumer_secret: process.env.TWITTER_CONSUMER_SECRET,
+  access_token_key: process.env.TWITTER_ACCESS_TOKEN_KEY,
+  access_token_secret: process.env.TWITTER_ACCESS_TOKEN_SECRET
+});
 
 //set up server
 var port = 4242;
@@ -29,16 +37,6 @@ app.listen(port);
 console.log('Serving on: http://localhost:' + port);
 
 //cron job for twitter posting
-var Twitter = require('twitter');
-
-var client = new Twitter({
-  consumer_key: process.env.TWITTER_CONSUMER_KEY,
-  consumer_secret: process.env.TWITTER_CONSUMER_SECRET,
-  access_token_key: process.env.TWITTER_ACCESS_TOKEN_KEY,
-  access_token_secret: process.env.TWITTER_ACCESS_TOKEN_SECRET
-});
-
-
 var job = new CronJob({
   cronTime: '00 30 11 * * 1-5',
   onTick: function() {
