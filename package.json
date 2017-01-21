@@ -9,10 +9,9 @@
   "author": "Siddhartha Nutulapati",
   "license": "MIT",
   "dependencies": {
-    "body-parser": "^1.15.2",
     "cron": "^1.2.1",
     "dotenv": "^4.0.0",
-    "express": "^4.14.0",
+    "firebase": "^3.6.6",
     "twitter": "^1.7.0"
   }
 }

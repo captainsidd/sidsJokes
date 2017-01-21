@@ -1,12 +1,10 @@
 //import dependencies
 require('dotenv').config();
-var express = require('express');
-var app = express();
-var bodyParser = require('body-parser');
-var methodOverride = require('method-override');
 var CronJob = require('cron').CronJob;
 var Twitter = require('twitter');
+var firebase = require('firebase');
 
+//twitter object setup
 var client = new Twitter({
   consumer_key: process.env.TWITTER_CONSUMER_KEY,
   consumer_secret: process.env.TWITTER_CONSUMER_SECRET,
@@ -14,34 +12,29 @@ var client = new Twitter({
   access_token_secret: process.env.TWITTER_ACCESS_TOKEN_SECRET
 });
 
-//set up server
-var port = 4242;
-app.use(bodyParser.json());
-app.use(bodyParser.json({ type: 'application/vnd.api+json' }));
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(methodOverride('X-HTTP-Method-Override'));
-app.use(express.static(__dirname + '/public'));
+//read from firebase
+var config = {
+  apiKey: "AIzaSyD4YwHeE2pKlDAWTeBfdEJsIIZb4WLAG-s",
+  authDomain: "sidsjokes-adb9b.firebaseapp.com",
+  databaseURL: "https://sidsjokes-adb9b.firebaseio.com",
+  storageBucket: "sidsjokes-adb9b.appspot.com",
+  messagingSenderId: "383575493897"
+};
+firebase.initializeApp(config);
+var ref = firebase.database().ref().child('tweets');
+var tweetsArray = $firebaseArray(ref);
+setTimeout(function () {
 
-//handle joke posting
-app.post('/api/joke', function(req, res) {
-  console.log(req.body);
-  //put into jokes.json
-});
+}, 1000);
+console.log(tweetsArray);
 
-//host webpage
-app.get('*', function(req, res) {
-  res.sendFile(__dirname + '/public/index.html');
-});
-
-app.listen(port);
-console.log('Serving on: http://localhost:' + port);
 
 //cron job for twitter posting
 var job = new CronJob({
-  cronTime: '00 30 11 * * 1-5',
+  cronTime: '00 45 5 * * 1-5',
   onTick: function() {
-    //read from jokes.json
-    var message = {};
+
+    //get next in tweetsArray, store as message
 
     client.post('statuses/update', message,  function(error, tweet, response) {
       if(error) throw error;
@@ -53,4 +46,5 @@ var job = new CronJob({
   start: false,
   timeZone: 'America/New_York'
 });
+
 job.start();
