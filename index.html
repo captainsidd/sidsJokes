@@ -42,12 +42,14 @@
       var app = angular.module('sidsJokesApp', ['firebase']);
 
       app.controller('formCtrl', function($scope, $firebaseArray) {
+        $scope.submitted = false;
         var ref = firebase.database().ref().child('tweets');
         $scope.tweets = $firebaseArray(ref);
         $scope.submit = function() {
           $scope.tweets.$add({
             joke: $scope.joke
           });
+          $scope.submitted = true;
         };
       });
 
@@ -66,13 +68,14 @@
       </div>
 
       <div class="jumbotron">
-        <form ng-controller="formCtrl" ng-submit="submit()">
+        <form ng-hide="submitted" ng-controller="formCtrl" ng-submit="submit()">
           <div class="form-group">
             <label>140 characters or less!</label>
             <textarea class="form-control" ng-model="joke" placeholder="joke goes here"></textarea>
           </div>
           <button type="submit" class="btn btn-default">Submit</button>
         </form>
+        <h2 ng-show="submitted">Thanks for submitting!</h2>
       </div>
 
       <a class="twitter-timeline" href="https://twitter.com/SidsJokes" data-tweet-limit="4">Tweets by SidsJokes</a> <script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
