@@ -27,7 +27,7 @@ console.log(new Date().toLocaleString() + ' Firebase app initialized');
 
 //cron job for twitter posting
 var job = new CronJob({
-  cronTime: '00 16 10 * * *',
+  cronTime: '00 23 5 * * *',
   onTick: function() {
     console.log(new Date().toLocaleString() + ' Cron job running');
 
