@@ -35,7 +35,19 @@ var job = new CronJob({
     firebase.database().ref('/tweets').orderByKey().once('value').then(function(snapshot) {
       snapshot.forEach(function(childSnapshot) {
         var childData = childSnapshot.val();
-        tweetsArray.push(childData);
+        if(childData.joke.length <= 140) {
+          tweetsArray.push(childData);
+        } else {
+          console.log(new Date().toLocaleString() + ' Invalid tweet found');
+          var ref = firebase.database().ref('tweets/' + childSnapshot.key);
+          ref.remove()
+            .then(function() {
+              console.log(new Date().toLocaleString() + ' Removed invalid tweet');
+            })
+            .catch(function(error) {
+              console.log(new Date().toLocaleString() + ' Removal of invalid tweet failed: ' + error.message);
+            });
+        }
       });
       console.log(new Date().toLocaleString() + ' Jokes fetched from database');
       if(tweetsArray.length != 0) {
