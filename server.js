@@ -1,3 +1,5 @@
+console.log(new Date().toLocaleString() + ' Server.js started');
+
 //import dependencies
 require('dotenv').config();
 var CronJob = require('cron').CronJob;
@@ -21,25 +23,32 @@ var config = {
   messagingSenderId: "383575493897"
 };
 firebase.initializeApp(config);
-var ref = firebase.database().ref().child('tweets');
-var tweetsArray = $firebaseArray(ref);
-setTimeout(function () {
-
-}, 1000);
-console.log(tweetsArray);
-
+console.log(new Date().toLocaleString() + ' Firebase app initialized');
 
 //cron job for twitter posting
 var job = new CronJob({
-  cronTime: '00 45 5 * * 1-5',
+  cronTime: '00 23 5 * * *',
   onTick: function() {
+    console.log(new Date().toLocaleString() + ' Cron job running');
 
-    //get next in tweetsArray, store as message
-
-    client.post('statuses/update', message,  function(error, tweet, response) {
-      if(error) throw error;
-      console.log(tweet);  // Tweet body.
-      console.log(response);  // Raw response object.
+    var tweetsArray = [];
+    firebase.database().ref('/tweets').orderByKey().once('value').then(function(snapshot) {
+      snapshot.forEach(function(childSnapshot) {
+        var childData = childSnapshot.val();
+        tweetsArray.push(childData);
+      });
+      console.log(new Date().toLocaleString() + ' Jokes fetched from database');
+      if(tweetsArray.length != 0) {
+        var message = { status: tweetsArray[0].joke };
+        client.post('statuses/update', message,  function(error, tweet, response) {
+          if(error) {
+            throw error;
+          }
+          console.log(new Date().toLocaleString() + ' Tweet successfully sent');
+        });
+      } else {
+        console.log(new Date().toLocaleString() + ' No jokes to tweet');
+      }
     });
 
   },
@@ -48,3 +57,4 @@ var job = new CronJob({
 });
 
 job.start();
+console.log(new Date().toLocaleString() + ' Cron job initialized');
