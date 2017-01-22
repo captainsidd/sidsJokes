@@ -45,9 +45,11 @@
         var ref = firebase.database().ref().child('tweets');
         $scope.tweets = $firebaseArray(ref);
         $scope.submit = function() {
-          $scope.tweets.$add({
-            joke: $scope.joke
-          });
+          if($scope.joke.length <= 140) {
+            $scope.tweets.$add({
+              joke: $scope.joke
+            });
+          }
         };
       });
 
