@@ -32,17 +32,22 @@ var job = new CronJob({
     console.log(new Date().toLocaleString() + ' Cron job running');
 
     var tweetsArray = [];
+
+    //fetch data from firebase
     firebase.database().ref('/tweets').orderByKey().once('value').then(function(snapshot) {
       console.log(new Date().toLocaleString() + ' Jokes fetched from database');
       var jokeKey = null;
+
+      //loop through data
       snapshot.forEach(function(childSnapshot) {
         var childData = childSnapshot.val();
+        //if valid length
         if(childData.joke.length <= 140) {
           tweetsArray.push(childData);
           if(jokeKey == null) {
             jokeKey = childSnapshot.key;
           }
-        } else {
+        } else { //remove invalid tweets
           console.log(new Date().toLocaleString() + ' Invalid tweet found');
           var ref = firebase.database().ref('tweets/' + childSnapshot.key);
           ref.remove().then(function() {
@@ -52,6 +57,7 @@ var job = new CronJob({
           });
         }
       });
+      //send first tweet if it exists
       if(tweetsArray.length != 0) {
         var message = { status: tweetsArray[0].joke };
         client.post('statuses/update', message,  function(error, tweet, response) {
@@ -60,6 +66,7 @@ var job = new CronJob({
           }
           console.log(new Date().toLocaleString() + ' Tweet successfully sent');
         });
+        //remove sent tweet from database
         var ref = firebase.database().ref('tweets/' + jokeKey);
         ref.remove().then(function() {
           console.log(new Date().toLocaleString() + ' Removed sent joke');
