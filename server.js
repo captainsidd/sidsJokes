@@ -27,29 +27,31 @@ console.log(new Date().toLocaleString() + ' Firebase app initialized');
 
 //cron job for twitter posting
 var job = new CronJob({
-  cronTime: '00 23 5 * * *',
+  cronTime: '00 16 10 * * *',
   onTick: function() {
     console.log(new Date().toLocaleString() + ' Cron job running');
 
     var tweetsArray = [];
     firebase.database().ref('/tweets').orderByKey().once('value').then(function(snapshot) {
+      console.log(new Date().toLocaleString() + ' Jokes fetched from database');
+      var jokeKey = null;
       snapshot.forEach(function(childSnapshot) {
         var childData = childSnapshot.val();
         if(childData.joke.length <= 140) {
           tweetsArray.push(childData);
+          if(jokeKey == null) {
+            jokeKey = childSnapshot.key;
+          }
         } else {
           console.log(new Date().toLocaleString() + ' Invalid tweet found');
           var ref = firebase.database().ref('tweets/' + childSnapshot.key);
-          ref.remove()
-            .then(function() {
-              console.log(new Date().toLocaleString() + ' Removed invalid tweet');
-            })
-            .catch(function(error) {
-              console.log(new Date().toLocaleString() + ' Removal of invalid tweet failed: ' + error.message);
-            });
+          ref.remove().then(function() {
+            console.log(new Date().toLocaleString() + ' Removed invalid tweet');
+          }).catch(function(error) {
+            console.log(new Date().toLocaleString() + ' Removal of invalid tweet failed: ' + error.message);
+          });
         }
       });
-      console.log(new Date().toLocaleString() + ' Jokes fetched from database');
       if(tweetsArray.length != 0) {
         var message = { status: tweetsArray[0].joke };
         client.post('statuses/update', message,  function(error, tweet, response) {
@@ -57,6 +59,12 @@ var job = new CronJob({
             throw error;
           }
           console.log(new Date().toLocaleString() + ' Tweet successfully sent');
+        });
+        var ref = firebase.database().ref('tweets/' + jokeKey);
+        ref.remove().then(function() {
+          console.log(new Date().toLocaleString() + ' Removed sent joke');
+        }).catch(function(error) {
+          console.log(new Date().toLocaleString() + ' Removal of sent joke failed: ' + error.message);
         });
       } else {
         console.log(new Date().toLocaleString() + ' No jokes to tweet');
