@@ -1,10 +1,17 @@
-console.log(new Date().toLocaleString() + ' Server.js started');
+logMessage(new Date().toLocaleString() + ' Server.js started');
 
 //import dependencies
 require('dotenv').config();
 var CronJob = require('cron').CronJob;
 var Twitter = require('twitter');
 var firebase = require('firebase');
+function logMessage(message) {
+  require('fs').appendFile('log.txt', message + '\n', function(err) {
+    if(err) {
+      logMessage(err);
+    }
+  });
+}
 
 //twitter object setup
 var client = new Twitter({
@@ -23,19 +30,19 @@ var config = {
   messagingSenderId: "383575493897"
 };
 firebase.initializeApp(config);
-console.log(new Date().toLocaleString() + ' Firebase app initialized');
+logMessage(new Date().toLocaleString() + ' Firebase app initialized');
 
 //cron job for twitter posting
 var job = new CronJob({
   cronTime: '00 23 5 * * *',
   onTick: function() {
-    console.log(new Date().toLocaleString() + ' Cron job running');
+    logMessage(new Date().toLocaleString() + ' Cron job running');
 
     var tweetsArray = [];
 
     //fetch data from firebase
     firebase.database().ref('/tweets').orderByKey().once('value').then(function(snapshot) {
-      console.log(new Date().toLocaleString() + ' Jokes fetched from database');
+      logMessage(new Date().toLocaleString() + ' Jokes fetched from database');
       var jokeKey = null;
 
       //loop through data
@@ -48,12 +55,12 @@ var job = new CronJob({
             jokeKey = childSnapshot.key;
           }
         } else { //remove invalid tweets
-          console.log(new Date().toLocaleString() + ' Invalid tweet found');
+          logMessage(new Date().toLocaleString() + ' Invalid tweet found');
           var ref = firebase.database().ref('tweets/' + childSnapshot.key);
           ref.remove().then(function() {
-            console.log(new Date().toLocaleString() + ' Removed invalid tweet');
+            logMessage(new Date().toLocaleString() + ' Removed invalid tweet');
           }).catch(function(error) {
-            console.log(new Date().toLocaleString() + ' Removal of invalid tweet failed: ' + error.message);
+            logMessage(new Date().toLocaleString() + ' Removal of invalid tweet failed: ' + error.message);
           });
         }
       });
@@ -64,17 +71,17 @@ var job = new CronJob({
           if(error) {
             throw error;
           }
-          console.log(new Date().toLocaleString() + ' Tweet successfully sent');
+          logMessage(new Date().toLocaleString() + ' Tweet successfully sent');
         });
         //remove sent tweet from database
         var ref = firebase.database().ref('tweets/' + jokeKey);
         ref.remove().then(function() {
-          console.log(new Date().toLocaleString() + ' Removed sent joke');
+          logMessage(new Date().toLocaleString() + ' Removed sent joke');
         }).catch(function(error) {
-          console.log(new Date().toLocaleString() + ' Removal of sent joke failed: ' + error.message);
+          logMessage(new Date().toLocaleString() + ' Removal of sent joke failed: ' + error.message);
         });
       } else {
-        console.log(new Date().toLocaleString() + ' No jokes to tweet');
+        logMessage(new Date().toLocaleString() + ' No jokes to tweet');
       }
     });
 
@@ -84,4 +91,5 @@ var job = new CronJob({
 });
 
 job.start();
-console.log(new Date().toLocaleString() + ' Cron job initialized');
+
+logMessage(new Date().toLocaleString() + ' Cron job initialized');
