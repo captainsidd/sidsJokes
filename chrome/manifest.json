@@ -1,0 +1,17 @@
+{
+  "manifest_version": 2,
+  "name": "Sid's Jokes",
+  "description": "Submits jokes for @SidsJokes",
+  "version": "0.0.1",
+
+  "browser_action": {
+    "default_icon": "images/icon.png",
+    "default_popup": "popup.html",
+    "default_title": "Submit a Joke!"
+  },
+  "permissions": [
+    "clipboardRead",
+    "clipboardWrite",
+    "unlimitedStorage"
+  ]
+}
