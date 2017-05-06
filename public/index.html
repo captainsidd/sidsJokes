@@ -3,6 +3,7 @@
   <head>
     <title>Sid's Joke Portal</title>
     <link href="bootstrap.min.css" rel="stylesheet">
+    <link href="toastr.min.css" rel="stylesheet">
     <script>
       window.twttr = (function(d, s, id) {
         var js, fjs = d.getElementsByTagName(s)[0],
@@ -26,6 +27,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <script src="bootstrap.min.js"></script>
     <script src="angular.min.js"></script>
+    <script src="toastr.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/3.6.4/firebase.js"></script>
     <script src="https://cdn.firebase.com/libs/angularfire/2.2.0/angularfire.min.js"></script>
     <script type="text/javascript">
@@ -50,6 +52,9 @@
               joke: $scope.joke
             });
           }
+          $scope.joke = '';
+          toastr.options = {"positionClass": "toast-bottom-left"};
+          toastr.success('Joke submitted!');
         };
       });
 
