@@ -18,5 +18,8 @@ app.controller('formCtrl', function($scope, $firebaseArray) {
         joke: $scope.joke
       });
     }
+    $scope.joke = '';
+    toastr.options = {"positionClass": "toast-bottom-left"};
+    toastr.success('Joke submitted!');
   };
 });
